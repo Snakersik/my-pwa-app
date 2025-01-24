@@ -1,8 +1,6 @@
-Notatnik - Progressive Web App (PWA)
+# Notatnik - Progressive Web App (PWA)
 
-Funkcjonalności
-
-##Główne funkcje:
+## Główne funkcje:##
 
 Dodawanie notatek: Możliwość tworzenia notatek wraz z informacją o lokalizacji użytkownika.
 
@@ -16,7 +14,9 @@ Geolokalizacja: Automatyczne przypisywanie lokalizacji do każdej notatki.
 
 Powiadomienia: Systemowe powiadomienia informujące o dodaniu lub usunięciu notatki.
 
-##Technologie
+---
+
+## Technologie##
 
 Aplikacja została zbudowana przy użyciu następujących technologii:
 
@@ -30,7 +30,9 @@ Geolocation API: Uzyskiwanie lokalizacji użytkownika.
 
 Web Notifications API: Wysyłanie powiadomień systemowych.
 
-##Instalacja i uruchomienie
+---
+
+## Instalacja i uruchomienie##
 
 Wymagania
 
