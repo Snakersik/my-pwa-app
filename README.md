@@ -1,70 +1,63 @@
-# Getting Started with Create React App
+Notatnik - Progressive Web App (PWA)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Funkcjonalności
 
-## Available Scripts
+##Główne funkcje:
 
-In the project directory, you can run:
+Dodawanie notatek: Możliwość tworzenia notatek wraz z informacją o lokalizacji użytkownika.
 
-### `npm start`
+Wyświetlanie listy notatek: Podgląd wszystkich zapisanych notatek.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Szczegóły notatek: Wyświetlanie szczegółów notatki z możliwością jej usunięcia.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Tryb offline: Aplikacja działa bez połączenia z Internetem, dzięki zastosowaniu Service Workera.
 
-### `npm test`
+Geolokalizacja: Automatyczne przypisywanie lokalizacji do każdej notatki.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Powiadomienia: Systemowe powiadomienia informujące o dodaniu lub usunięciu notatki.
 
-### `npm run build`
+##Technologie
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Aplikacja została zbudowana przy użyciu następujących technologii:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+React: Biblioteka JavaScript do budowy interfejsów użytkownika.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+React Router: Zarządzanie trasami w aplikacji.
 
-### `npm run eject`
+Service Worker: Obsługa cache i funkcjonalności offline.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Geolocation API: Uzyskiwanie lokalizacji użytkownika.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Web Notifications API: Wysyłanie powiadomień systemowych.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+##Instalacja i uruchomienie
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Wymagania
 
-## Learn More
+Node.js w wersji 16 lub nowszej
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Menedżer pakietów npm lub yarn
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Instrukcja uruchomienia
 
-### Code Splitting
+Sklonuj repozytorium
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+git clone https://github.com/Snakersik/my-pwa-app
+cd my-pwa-app
 
-### Analyzing the Bundle Size
+Zainstaluj zależności
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+npm install
 
-### Making a Progressive Web App
+Uruchom aplikację
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+npm start
 
-### Advanced Configuration
+Zbuduj wersję produkcyjną
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+npm run build
 
-### Deployment
+Pliki zostaną zapisane w folderze build/
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Aplikacja została wyhostowana na Netlify
+https://fluffy-peony-a1cb7a.netlify.app
