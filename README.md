@@ -44,22 +44,23 @@ Instrukcja uruchomienia
 
 Sklonuj repozytorium
 
-git clone https://github.com/Snakersik/my-pwa-app
-cd my-pwa-app
+`git clone https://github.com/Snakersik/my-pwa-app`
+`cd my-pwa-app`
 
 Zainstaluj zależności
 
-npm install
+`npm install`
 
 Uruchom aplikację
 
-npm start
+`npm start`
 
 Zbuduj wersję produkcyjną
 
-npm run build
+`npm run build`
 
 Pliki zostaną zapisane w folderze build/
 
 Aplikacja została wyhostowana na Netlify
-https://fluffy-peony-a1cb7a.netlify.app
+
+[NoteApp](https://fluffy-peony-a1cb7a.netlify.app)
