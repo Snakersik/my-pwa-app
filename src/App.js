@@ -1,9 +1,9 @@
-// Główna struktura aplikacji
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./views/Home";
 import AddNote from "./views/AddNote";
 import NoteDetail from "./views/NoteDetail";
+import { v4 as uuidv4 } from "uuid"; // Generowanie unikalnych ID
 import "./App.css";
 
 function App() {
@@ -14,10 +14,12 @@ function App() {
 
   const [location, setLocation] = useState(null);
 
+  // Zapisywanie notatek w localStorage
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(notes));
   }, [notes]);
 
+  // Pobranie lokalizacji użytkownika
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -35,37 +37,45 @@ function App() {
               "Nieznane miasto";
             setLocation({ latitude, longitude, city });
           } catch (error) {
-            console.error("Error fetching location data:", error);
+            console.error("Błąd pobierania lokalizacji:", error);
             setLocation({ latitude, longitude, city: "Nieznane miasto" });
           }
         },
         (error) => {
-          console.error("Geolocation error:", error);
+          console.error("Błąd geolokalizacji:", error);
         }
       );
     }
   }, []);
 
-  useEffect(() => {
+  // Funkcja do pokazywania powiadomień
+  const showNotification = (title, options) => {
+    if (navigator.serviceWorker && Notification.permission === "granted") {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.showNotification(title, options);
+      });
+    }
+  };
+
+  // Funkcja do żądania pozwolenia na powiadomienia
+  const requestNotificationPermission = () => {
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission().then((permission) => {
         if (permission === "granted") {
           console.log("Powiadomienia zostały włączone.");
-        } else {
-          console.log("Powiadomienia zostały odrzucone.");
         }
       });
     }
-  }, []);
-
-  const showNotification = (title, options) => {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(title, options);
-    }
   };
 
+  // Dodawanie notatki
   const addNoteWithLocation = (note) => {
+    if (Notification.permission !== "granted") {
+      requestNotificationPermission();
+    }
+
     const noteWithLocation = {
+      id: uuidv4(), // Unikalne ID
       ...note,
       location: location?.city || "Nieznane miasto",
     };
@@ -76,10 +86,11 @@ function App() {
     });
   };
 
+  // Usuwanie notatki
   const deleteNote = (id) => {
-    setNotes((prevNotes) => prevNotes.filter((_, index) => index !== id));
+    setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
     showNotification("Notatka usunięta!", {
-      body: `Notatka została usunięta.`,
+      body: "Notatka została usunięta.",
       icon: "/icon.png",
     });
   };
@@ -114,19 +125,28 @@ function App() {
 
 export default App;
 
-// Service Worker i Manifest
+// Rejestracja Service Workera z automatycznym odświeżaniem
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/service-worker.js")
       .then((registration) => {
-        console.log(
-          "Service Worker registered with scope:",
-          registration.scope
-        );
+        console.log("Service Worker zarejestrowany:", registration.scope);
+
+        registration.onupdatefound = () => {
+          const newWorker = registration.installing;
+          newWorker.onstatechange = () => {
+            if (
+              newWorker.state === "installed" &&
+              navigator.serviceWorker.controller
+            ) {
+              console.log("Nowa wersja dostępna. Odśwież stronę.");
+            }
+          };
+        };
       })
       .catch((error) => {
-        console.error("Service Worker registration failed:", error);
+        console.error("Błąd rejestracji Service Workera:", error);
       });
   });
 }
