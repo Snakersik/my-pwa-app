@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 function AddNote({ addNote }) {
   const [title, setTitle] = useState("");
@@ -8,7 +9,19 @@ function AddNote({ addNote }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addNote({ title, content });
+
+    if (title.trim() === "" || content.trim() === "") {
+      alert("Tytuł i treść nie mogą być puste!");
+      return;
+    }
+
+    const newNote = {
+      id: uuidv4(),
+      title: title.trim(),
+      content: content.trim(),
+    };
+
+    addNote(newNote);
     navigate("/");
   };
 

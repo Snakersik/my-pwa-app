@@ -1,76 +1,94 @@
 /* eslint-disable no-restricted-globals */
-const CACHE_NAME = "notatnik-cache-v1";
-const urlsToCache = [
-  "/",
-  "/index.html",
-  "/static/js/main.*.js",
-  "/static/css/main.*.css",
-  "/favicon.ico",
-  "/icon.png",
-];
+const CACHE_NAME = "notatnik-cache-v2";
 
-// Instalacja Service Workera i zapisanie plików w cache
+async function getFilesToCache() {
+  const manifestResponse = await fetch("/asset-manifest.json");
+  const manifest = await manifestResponse.json();
+
+  return [
+    "/index.html",
+    "/favicon.ico",
+    "/icon.png",
+    "/logo192.png",
+    "/logo512.png",
+    "/manifest.json",
+    "/robots.txt",
+    manifest.files["main.css"],
+    manifest.files["main.js"],
+  ];
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
+      return getFilesToCache().then((urlsToCache) => {
+        return Promise.all(
+          urlsToCache.map((url) => {
+            return fetch(url)
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error(`Failed to fetch: ${url}`);
+                }
+                return cache.put(url, response);
+              })
+              .catch((error) => {
+                console.error(`Błąd przy dodawaniu do cache: ${url}`, error);
+              });
+          })
+        );
+      });
     })
   );
+  self.skipWaiting();
 });
 
-// Obsługa żądań sieciowych – Cache First z Network Fallback
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request)
-        .then((fetchedResponse) => {
-          if (!fetchedResponse || fetchedResponse.status !== 200) {
-            return fetchedResponse;
-          }
+      return (
+        cachedResponse ||
+        fetch(event.request).then((response) => {
           return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, fetchedResponse.clone());
-            return fetchedResponse;
+            cache.put(event.request, response.clone());
+            return response;
           });
-        })
-        .catch(() => {
-          if (event.request.url.endsWith(".html")) {
-            return caches.match("/index.html");
-          }
-        });
-    })
-  );
-});
-
-// Usuwanie starego cache podczas aktywacji nowej wersji Service Workera
-self.addEventListener("activate", (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
         })
       );
     })
   );
 });
 
-// Obsługa powiadomień Push
-self.addEventListener("push", (event) => {
-  const data = event.data
-    ? event.data.json()
-    : { title: "Powiadomienie", body: "Masz nowe powiadomienie!" };
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      )
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener("message", (event) => {
+  const { action, title, options } = event.data;
+
+  if (action === "showNotification") {
+    self.registration.showNotification(title, options);
+  }
+});
+
+self.addEventListener("push", function (event) {
+  const options = {
+    body: event.data ? event.data.text() : "Nowa notatka",
+    icon: "/icon.png",
+    badge: "/badge.png",
+  };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: data.body,
-      icon: "/icon.png",
-      badge: "/icon.png",
-    })
+    self.registration.showNotification("Notatka dodana!", options)
   );
 });

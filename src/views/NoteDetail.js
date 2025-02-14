@@ -4,14 +4,15 @@ import { useParams, useNavigate } from "react-router-dom";
 function NoteDetail({ notes, deleteNote }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const note = notes[parseInt(id)];
+
+  const note = notes.find((note) => note.id === id);
 
   if (!note) {
     return <p>Notatka nie została znaleziona!</p>;
   }
 
   const handleDelete = () => {
-    deleteNote(parseInt(id));
+    deleteNote(id);
     navigate("/");
   };
 

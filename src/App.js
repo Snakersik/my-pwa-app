@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./views/Home";
 import AddNote from "./views/AddNote";
 import NoteDetail from "./views/NoteDetail";
-import { v4 as uuidv4 } from "uuid"; // Generowanie unikalnych ID
+import { v4 as uuidv4 } from "uuid";
 import "./App.css";
 
 function App() {
@@ -13,13 +13,12 @@ function App() {
   });
 
   const [location, setLocation] = useState(null);
+  const [swRegistration, setSwRegistration] = useState(null);
 
-  // Zapisywanie notatek w localStorage
   useEffect(() => {
     localStorage.setItem("notes", JSON.stringify(notes));
   }, [notes]);
 
-  // Pobranie lokalizacji użytkownika
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -48,47 +47,68 @@ function App() {
     }
   }, []);
 
-  // Funkcja do pokazywania powiadomień
-  const showNotification = (title, options) => {
-    if (navigator.serviceWorker && Notification.permission === "granted") {
-      navigator.serviceWorker.ready.then((registration) => {
-        registration.showNotification(title, options);
-      });
-    }
-  };
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((registration) => {
+          console.log("Service Worker zarejestrowany:", registration.scope);
+          setSwRegistration(registration);
 
-  // Funkcja do żądania pozwolenia na powiadomienia
+          // Nasłuchujemy wiadomości z Service Workera
+          navigator.serviceWorker.addEventListener("message", (event) => {
+            const { title, body } = event.data;
+            console.log("Otrzymano wiadomość z SW:", title, body);
+          });
+        })
+        .catch((error) => {
+          console.error("Błąd rejestracji Service Workera:", error);
+        });
+    }
+  }, []);
+
   const requestNotificationPermission = () => {
-    if ("Notification" in window && Notification.permission !== "granted") {
+    if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          console.log("Powiadomienia zostały włączone.");
-        }
+        console.log("Powiadomienia:", permission);
       });
     }
   };
 
-  // Dodawanie notatki
+  const showNotification = (title, options) => {
+    if (swRegistration && swRegistration.active) {
+      // Wysyłanie komunikatu do Service Workera
+      swRegistration.active.postMessage({
+        action: "showNotification",
+        title: title,
+        options: options,
+      });
+    }
+  };
+
   const addNoteWithLocation = (note) => {
-    if (Notification.permission !== "granted") {
+    if (Notification.permission === "default") {
       requestNotificationPermission();
     }
 
-    const noteWithLocation = {
-      id: uuidv4(), // Unikalne ID
+    const newNote = {
+      id: uuidv4(),
       ...note,
       location: location?.city || "Nieznane miasto",
     };
-    setNotes((prevNotes) => [...prevNotes, noteWithLocation]);
+
+    setNotes((prevNotes) => [...prevNotes, newNote]);
+
+    // Powiadomienie lokalne po dodaniu notatki
     showNotification("Notatka dodana!", {
       body: `Dodano notatkę: ${note.title}`,
       icon: "/icon.png",
     });
   };
 
-  // Usuwanie notatki
   const deleteNote = (id) => {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+
     showNotification("Notatka usunięta!", {
       body: "Notatka została usunięta.",
       icon: "/icon.png",
@@ -124,29 +144,3 @@ function App() {
 }
 
 export default App;
-
-// Rejestracja Service Workera z automatycznym odświeżaniem
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/service-worker.js")
-      .then((registration) => {
-        console.log("Service Worker zarejestrowany:", registration.scope);
-
-        registration.onupdatefound = () => {
-          const newWorker = registration.installing;
-          newWorker.onstatechange = () => {
-            if (
-              newWorker.state === "installed" &&
-              navigator.serviceWorker.controller
-            ) {
-              console.log("Nowa wersja dostępna. Odśwież stronę.");
-            }
-          };
-        };
-      })
-      .catch((error) => {
-        console.error("Błąd rejestracji Service Workera:", error);
-      });
-  });
-}

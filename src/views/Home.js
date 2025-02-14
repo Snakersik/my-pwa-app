@@ -9,9 +9,9 @@ function Home({ notes }) {
         <p>Brak notatek. Dodaj swoją pierwszą notatkę!</p>
       ) : (
         <ul>
-          {notes.map((note, index) => (
-            <li key={index}>
-              <Link to={`/note/${index}`}>{note.title}</Link>
+          {notes.map((note) => (
+            <li key={note.id}>
+              <Link to={`/note/${note.id}`}>{note.title}</Link>
             </li>
           ))}
         </ul>
