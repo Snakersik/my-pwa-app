@@ -55,7 +55,6 @@ function App() {
           console.log("Service Worker zarejestrowany:", registration.scope);
           setSwRegistration(registration);
 
-          // Nasłuchujemy wiadomości z Service Workera
           navigator.serviceWorker.addEventListener("message", (event) => {
             const { title, body } = event.data;
             console.log("Otrzymano wiadomość z SW:", title, body);
@@ -77,7 +76,6 @@ function App() {
 
   const showNotification = (title, options) => {
     if (swRegistration && swRegistration.active) {
-      // Wysyłanie komunikatu do Service Workera
       swRegistration.active.postMessage({
         action: "showNotification",
         title: title,
@@ -99,7 +97,6 @@ function App() {
 
     setNotes((prevNotes) => [...prevNotes, newNote]);
 
-    // Powiadomienie lokalne po dodaniu notatki
     showNotification("Notatka dodana!", {
       body: `Dodano notatkę: ${note.title}`,
       icon: "/icon.png",
